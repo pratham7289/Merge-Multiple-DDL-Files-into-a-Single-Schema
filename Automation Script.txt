@@ -1,0 +1,21 @@
+#!/bin/bash
+DDL_DIR="/var/lib/pgsql/ddls"
+OUTPUT_FILE="merged_schema.sql"
+> "$OUTPUT_FILE"
+echo "Merging CREATE TABLE statements..."
+for file in "$DDL_DIR"/*.ddl; do
+    grep -i 'CREATE TABLE' "$file" >> "$OUTPUT_FILE"
+done
+echo "Merging ALTER TABLE (foreign key) statements..."
+for file in "$DDL_DIR"/*.ddl; do
+    grep -i 'ALTER TABLE.*ADD FOREIGN KEY' "$file" >> "$OUTPUT_FILE"
+done
+echo "Merging CREATE INDEX statements..."
+for file in "$DDL_DIR"/*.ddl; do
+    grep -i 'CREATE INDEX' "$file" >> "$OUTPUT_FILE"
+done
+echo "Merging other statements..."
+for file in "$DDL_DIR"/*.ddl; do
+    grep -ivE 'CREATE TABLE|ALTER TABLE|CREATE INDEX' "$file" >> "$OUTPUT_FILE"
+done
+echo "Merging complete! Output file: $OUTPUT_FILE"
